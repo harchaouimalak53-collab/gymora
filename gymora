@@ -1,0 +1,253 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Activity, 
+  Calendar, 
+  ChevronRight, 
+  Dumbbell, 
+  Flame, 
+  LayoutDashboard, 
+  Plus, 
+  Settings, 
+  TrendingUp, 
+  Users, 
+  Clock,
+  CheckCircle2,
+  Trophy
+} from 'lucide-react';
+
+// Composant de Carte de Statistique
+const StatCard = ({ icon: Icon, label, value, color, trend }) => (
+  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start">
+      <div className={`p-3 rounded-xl ${color}`}>
+        <Icon className="w-6 h-6 text-white" />
+      </div>
+      {trend && (
+        <span className={`text-xs font-medium px-2 py-1 rounded-full ${trend > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}`}>
+          {trend > 0 ? '+' : ''}{trend}%
+        </span>
+      )}
+    </div>
+    <div className="mt-4">
+      <p className="text-slate-500 text-sm font-medium">{label}</p>
+      <h3 className="text-2xl font-bold text-slate-800 mt-1">{value}</h3>
+    </div>
+  </div>
+);
+
+// Composant Principal
+export default function App() {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [workouts, setWorkouts] = useState([
+    { id: 1, name: 'Développé couché', sets: '4x10', completed: true },
+    { id: 2, name: 'Squats', sets: '3x12', completed: false },
+    { id: 3, name: 'Tractions', sets: '3xMax', completed: false },
+  ]);
+
+  const toggleWorkout = (id) => {
+    setWorkouts(workouts.map(w => w.id === id ? { ...w, completed: !w.completed } : w));
+  };
+
+  const progress = Math.round((workouts.filter(w => w.completed).length / workouts.length) * 100);
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row font-sans text-slate-900">
+      {/* Sidebar - Navigation latérale */}
+      <aside className="w-full md:w-64 bg-white border-r border-slate-200 p-6 flex flex-col">
+        <div className="flex items-center gap-3 mb-10">
+          <div className="bg-indigo-600 p-2 rounded-lg">
+            <Dumbbell className="text-white w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-black tracking-tight text-indigo-600">GYMORA</h1>
+        </div>
+
+        <nav className="space-y-2 flex-1">
+          {[
+            { id: 'dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
+            { id: 'workouts', icon: Activity, label: 'Entraînements' },
+            { id: 'community', icon: Users, label: 'Communauté' },
+            { id: 'schedule', icon: Calendar, label: 'Calendrier' },
+            { id: 'settings', icon: Settings, label: 'Paramètres' },
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                activeTab === item.id 
+                ? 'bg-indigo-50 text-indigo-600 font-semibold' 
+                : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+              }`}
+            >
+              <item.icon size={20} />
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto bg-indigo-600 rounded-2xl p-4 text-white">
+          <p className="text-xs opacity-80 uppercase font-bold tracking-wider">Pass Pro</p>
+          <p className="text-sm mt-1 font-medium">Débloquez tous les programmes</p>
+          <button className="mt-3 w-full bg-white text-indigo-600 py-2 rounded-lg text-sm font-bold hover:bg-opacity-90 transition-colors">
+            Améliorer
+          </button>
+        </div>
+      </aside>
+
+      {/* Main Content - Contenu principal */}
+      <main className="flex-1 p-4 md:p-10 overflow-y-auto">
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-slate-800">Bonjour, Alex ! 👋</h2>
+            <p className="text-slate-500">Prêt pour votre séance de musculation aujourd'hui ?</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right hidden md:block">
+              <p className="text-sm font-bold text-slate-800">Niveau 12</p>
+              <p className="text-xs text-slate-500">2,450 XP jusqu'au prochain rang</p>
+            </div>
+            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border-2 border-white shadow-sm overflow-hidden flex items-center justify-center text-white font-bold text-xl">
+              A
+            </div>
+          </div>
+        </header>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          <StatCard 
+            icon={Flame} 
+            label="Calories Brûlées" 
+            value="1,284 kcal" 
+            color="bg-orange-500" 
+            trend={12} 
+          />
+          <StatCard 
+            icon={Clock} 
+            label="Temps d'activité" 
+            value="45 min" 
+            color="bg-indigo-500" 
+            trend={5} 
+          />
+          <StatCard 
+            icon={TrendingUp} 
+            label="Poids Moyen" 
+            value="76.5 kg" 
+            color="bg-emerald-500" 
+            trend={-1} 
+          />
+          <StatCard 
+            icon={Trophy} 
+            label="Objectif atteint" 
+            value={`${progress}%`} 
+            color="bg-amber-500" 
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Workout List */}
+          <div className="lg:col-span-2 space-y-6">
+            <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <Activity className="text-indigo-600" />
+                  Séance du jour
+                </h3>
+                <button className="text-indigo-600 text-sm font-semibold flex items-center gap-1 hover:underline">
+                  Voir tout <ChevronRight size={16} />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {workouts.map((workout) => (
+                  <div 
+                    key={workout.id}
+                    onClick={() => toggleWorkout(workout.id)}
+                    className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                      workout.completed 
+                      ? 'bg-slate-50 border-slate-200' 
+                      : 'bg-white border-slate-100 hover:border-indigo-200 shadow-sm'
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-full ${workout.completed ? 'bg-emerald-100' : 'bg-slate-100'}`}>
+                        {workout.completed 
+                          ? <CheckCircle2 className="w-5 h-5 text-emerald-600" /> 
+                          : <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                        }
+                      </div>
+                      <div>
+                        <h4 className={`font-bold ${workout.completed ? 'text-slate-400 line-through' : 'text-slate-800'}`}>
+                          {workout.name}
+                        </h4>
+                        <p className="text-xs text-slate-500">{workout.sets}</p>
+                      </div>
+                    </div>
+                    <button className="text-slate-400 hover:text-indigo-600">
+                      <Settings size={18} />
+                    </button>
+                  </div>
+                ))}
+                
+                <button className="w-full flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-200 rounded-xl text-slate-500 hover:border-indigo-400 hover:text-indigo-600 transition-all font-medium">
+                  <Plus size={20} />
+                  Ajouter un exercice
+                </button>
+              </div>
+            </section>
+          </div>
+
+          {/* Right Sidebar - Social / Stats Summary */}
+          <div className="space-y-6">
+            <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold mb-4">Progression</h3>
+              <div className="h-4 bg-slate-100 rounded-full overflow-hidden mb-2">
+                <div 
+                  className="h-full bg-indigo-600 transition-all duration-500 ease-out" 
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-slate-500 text-center font-medium">
+                {progress}% de l'objectif hebdomadaire complété
+              </p>
+            </section>
+
+            <section className="bg-gradient-to-br from-indigo-900 to-indigo-700 p-6 rounded-2xl text-white shadow-lg">
+              <h3 className="text-lg font-bold mb-4">Le saviez-vous ?</h3>
+              <p className="text-indigo-100 text-sm leading-relaxed italic">
+                "Le repos fait partie de l'entraînement. Ne négligez pas votre sommeil pour une récupération optimale."
+              </p>
+              <div className="mt-6 flex items-center gap-2">
+                <div className="w-1 h-1 bg-white rounded-full"></div>
+                <div className="w-1 h-1 bg-white opacity-40 rounded-full"></div>
+                <div className="w-1 h-1 bg-white opacity-40 rounded-full"></div>
+              </div>
+            </section>
+
+            <section className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 className="text-lg font-bold mb-4">Amis en ligne</h3>
+              <div className="space-y-4">
+                {[
+                  { name: 'Marc L.', active: 'Leg Day', img: 'M' },
+                  { name: 'Sarah K.', active: 'Yoga', img: 'S' },
+                  { name: 'Thomas D.', active: 'Repos', img: 'T' },
+                ].map((friend, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs">
+                      {friend.img}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-slate-800">{friend.name}</p>
+                      <p className="text-xs text-slate-500">{friend.active}</p>
+                    </div>
+                    {friend.active !== 'Repos' && (
+                      <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
